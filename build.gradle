@@ -18,14 +18,12 @@ group "ru.hadron"
 version "0.0.1"
 mainClassName = "io.ktor.server.netty.EngineMain"
 
-def isDevelopment = project.ext.has("development")
-applicationDefaultJvmArgs = ["-Dio.ktor.development=$isDevelopment"]
 
 sourceSets {
-    main.kotlin.srcDirs = main.java.srcDirs = ['src']
-    test.kotlin.srcDirs = test.java.srcDirs = ['test']
-    main.resources.srcDirs = ['resources']
-    test.resources.srcDirs = ['testresources']
+    main.kotlin.srcDirs = [ 'src/main/kotlin/ru/hadron' ]
+    // test.kotlin.srcDirs = test.java.srcDirs = ['test']
+    main.resources.srcDirs = [ 'src/main/resources' ]
+    //  test.resources.srcDirs = ['testresources']
 }
 
 repositories {
@@ -55,4 +53,12 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
     implementation 'commons-codec:commons-codec:1.15'
     implementation "io.ktor:ktor-network-tls:$ktor_version"
+
+    //The DefaultHeaders plugin adds the standard Server and Date headers into each response.
+    implementation "io.ktor:ktor-server-default-headers:$ktor_version"
+    //The CallLogging plugin allows you to log incoming client requests.
+    implementation "io.ktor:ktor-server-call-logging:$ktor_version"
+
+
+    implementation "io.ktor:ktor-server-content-negotiation:$ktor_version"
 }
