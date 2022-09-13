@@ -9,6 +9,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.plugins.contentnegotiation.*
 import ru.hadron.data.checkPasswordForEmail
 import ru.hadron.plugins.routes.loginRoute
+import ru.hadron.plugins.routes.noteRoutes
 import ru.hadron.plugins.routes.registerRoute
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -16,19 +17,21 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 fun Application.module(testing: Boolean = false) {
     install(DefaultHeaders)
     install(CallLogging)
+
+    install(Authentication) {
+        configureAuth()
+    }
+
     install(Routing) {
         registerRoute()
         loginRoute()
+        noteRoutes()
     }
     install(ContentNegotiation) {
         gson {
             setPrettyPrinting()
         }
     }
-    install(Authentication) {
-        configureAuth()
-    }
-
 //    CoroutineScope(Dispatchers.IO).launch {
 //        registerUser(
 //            User(
