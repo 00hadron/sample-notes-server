@@ -8,11 +8,11 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import ru.hadron.data.*
 import ru.hadron.data.collections.Note
-import ru.hadron.data.deleteNoteForUser
-import ru.hadron.data.getNotesForUser
+import ru.hadron.data.requests.AddOwnerRequest
 import ru.hadron.data.requests.DeleteNoteRequest
-import ru.hadron.data.saveNote
+import ru.hadron.data.responses.SimpleResponse
 
 fun Route.noteRoutes() {
     route("/getNotes") {
@@ -58,6 +58,31 @@ fun Route.noteRoutes() {
                 } else {
                     call.respond(Conflict)
                 }
+            }
+        }
+    }
+
+    route("/addOwnerToNote") {
+        authenticate {
+            post {
+                val request = try {
+                    call.receive<AddOwnerRequest>()
+                } catch (e: ContentTransformationException) {
+                    call.respond(BadRequest)
+                    return@post
+                }
+                if (!checkIfUserExist(request.owner)) {
+                    call.respond(OK, SimpleResponse(false, "No user with this email"))
+                    return@post
+                }
+                if (isOwnerOfNote(request.noteId, request.owner)) {
+                    call.respond(OK, SimpleResponse(false, "A user is already an owner of this note"))
+                    return@post
+                }
+                if (addOwnerToNote(request.noteId, request.owner)) {
+                    call.respond(OK, SimpleResponse(true, "${request.owner} is able to see this note"))
+                } else
+                    call.respond(Conflict)
             }
         }
     }
