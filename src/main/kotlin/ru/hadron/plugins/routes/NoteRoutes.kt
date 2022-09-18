@@ -9,7 +9,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import ru.hadron.data.collections.Note
+import ru.hadron.data.deleteNoteForUser
 import ru.hadron.data.getNotesForUser
+import ru.hadron.data.requests.DeleteNoteRequest
 import ru.hadron.data.saveNote
 
 fun Route.noteRoutes() {
@@ -33,6 +35,25 @@ fun Route.noteRoutes() {
                     return@post
                 }
                 if (saveNote(note)) {
+                    call.respond(OK)
+                } else {
+                    call.respond(Conflict)
+                }
+            }
+        }
+    }
+
+    route("/deleteNote") {
+        authenticate {
+            post {
+                val email = call.principal<UserIdPrincipal>()!!.name
+                val request = try {
+                    call.receive<DeleteNoteRequest>()
+                } catch (e: ContentTransformationException) {
+                    call.respond(BadRequest)
+                    return@post
+                }
+                if (deleteNoteForUser(email, request.id)) {
                     call.respond(OK)
                 } else {
                     call.respond(Conflict)
